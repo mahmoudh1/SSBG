@@ -1,6 +1,6 @@
-﻿# Story 2.1: Accept Backup Requests and Validate Base Request Contract
+# Story 2.1: Accept Backup Requests and Validate Base Request Contract
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,10 +20,10 @@ FR-04 (precondition for policy pipeline), FR-17 (operational API), UJ-02
 
 ## Tasks / Subtasks
 
-- [ ] Implement backup request schema validation and route handling in app/api/routes/backups.py (AC: 1, 2, 3)
-- [ ] Return documented validation error contract for malformed requests (AC: 1)
-- [ ] Ensure valid requests hand off to classification/policy pipeline without performing storage writes yet (AC: 2, 3)
-- [ ] Add tests for malformed vs well-formed requests and no-side-effects on validation failure (AC: 1, 2, 3)
+- [x] Implement backup request schema validation and route handling in app/api/routes/backups.py (AC: 1, 2, 3)
+- [x] Return documented validation error contract for malformed requests (AC: 1)
+- [x] Ensure valid requests hand off to classification/policy pipeline without performing storage writes yet (AC: 2, 3)
+- [x] Add tests for malformed vs well-formed requests and no-side-effects on validation failure (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -90,5 +90,38 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created
-- Story status set to ready-for-dev
+- Added backup request schema and validation with consistent error envelopes.
+- Implemented backup handoff stub in service layer without persistence side effects.
+- Added integration tests for malformed/valid requests and side-effect suppression.
+- Tests: `pytest`, `ruff`, `mypy`
+- Code review fixes: added explicit request-structure validation contract test and completed review documentation/tracking sync.
+
+## File List
+
+- `app/api/routes/backups.py`
+- `app/api/error_handlers.py`
+- `app/schemas/backups.py`
+- `tests/integration/api/test_backups_validation.py`
+- `_bmad-output/implementation-artifacts/2-1-accept-backup-requests-and-validate-base-request-contract.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented backup request validation/handoff baseline and integration tests
+- 2026-02-26: Code review fixes applied (request-structure validation coverage + documentation/tracking sync)
+
+## Senior Developer Review (AI)
+
+### Review Date
+
+2026-02-26
+
+### Outcome
+
+Approve
+
+### Findings Addressed
+
+- [x] Added endpoint request-structure validation test to exercise FastAPI/Pydantic validation contract
+- [x] Added missing File List and Change Log sections
+- [x] Synced story/sprint status to `done`

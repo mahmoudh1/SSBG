@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     key_store_path: str = Field(default='./keys', alias='KEY_STORE_PATH')
     api_key_header: str = Field(default='X-API-Key', alias='API_KEY_HEADER')
     mfa_header: str = Field(default='X-MFA-Token', alias='MFA_HEADER')
+    classification_required: bool = Field(default=True, alias='CLASSIFICATION_REQUIRED')
+    default_classification: str = Field(default='PUBLIC', alias='DEFAULT_CLASSIFICATION')
 
 
 @lru_cache(maxsize=1)

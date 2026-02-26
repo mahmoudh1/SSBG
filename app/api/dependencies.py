@@ -2,13 +2,18 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Awaitable, Callable
+from functools import lru_cache
 
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
+from app.infrastructure.crypto.key_store_fs import FileSystemKeyStore
 from app.infrastructure.db.session import get_db_session
+from app.infrastructure.storage.minio_client import InMemoryObjectStorage
 from app.repositories.api_keys_repository import ApiKeysRepository
+from app.repositories.audit_repository import AuditRepository
+from app.repositories.backups_repository import BackupsRepository
 from app.repositories.policies_repository import PoliciesRepository
 from app.schemas.auth import ApiKeyPrincipal
 from app.services.audit_service import AuditService
@@ -35,16 +40,35 @@ def _auth_error_payload(code: str, message: str, request_id: str) -> dict[str, o
     }
 
 
-def get_audit_service() -> AuditService:
-    return AuditService()
-
-
 def get_api_keys_repository(db: AsyncSession = Depends(get_db_session)) -> ApiKeysRepository:
     return ApiKeysRepository(db)
 
 
 def get_policies_repository(db: AsyncSession = Depends(get_db_session)) -> PoliciesRepository:
     return PoliciesRepository(db)
+
+
+def get_backups_repository(db: AsyncSession = Depends(get_db_session)) -> BackupsRepository:
+    return BackupsRepository(db)
+
+
+def get_audit_repository(db: AsyncSession = Depends(get_db_session)) -> AuditRepository:
+    return AuditRepository(db)
+
+
+def get_audit_service(
+    repository: AuditRepository = Depends(get_audit_repository),
+) -> AuditService:
+    return AuditService(repository)
+
+
+def get_key_store(settings: Settings = Depends(get_app_settings)) -> FileSystemKeyStore:
+    return FileSystemKeyStore(key_store_path=settings.key_store_path)
+
+
+@lru_cache(maxsize=1)
+def get_storage_client() -> InMemoryObjectStorage:
+    return InMemoryObjectStorage()
 
 
 def get_auth_service(
@@ -58,8 +82,15 @@ def get_policy_service() -> PolicyService:
     return PolicyService()
 
 
-def get_backup_service() -> BackupService:
-    return BackupService()
+def get_backup_service(
+    repository: BackupsRepository = Depends(get_backups_repository),
+    settings: Settings = Depends(get_app_settings),
+    policy_service: PolicyService = Depends(get_policy_service),
+    audit_service: AuditService = Depends(get_audit_service),
+    key_store: FileSystemKeyStore = Depends(get_key_store),
+    storage: InMemoryObjectStorage = Depends(get_storage_client),
+) -> BackupService:
+    return BackupService(repository, settings, policy_service, audit_service, key_store, storage)
 
 
 async def require_api_key(

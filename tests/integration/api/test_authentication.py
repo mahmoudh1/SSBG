@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from app.api.dependencies import get_auth_service
+from app.api.dependencies import get_auth_service, get_backup_service
 from app.main import create_app
 from app.schemas.auth import ApiKeyPrincipal
 from app.services.auth_service import AuthFailure
@@ -53,8 +53,23 @@ def test_valid_api_key_allows_request() -> None:
         async def authenticate(self, raw_key: str, client_ip: str | None) -> ApiKeyPrincipal:
             return ApiKeyPrincipal(key_id='key-1', role='operator', department='IT')
 
+    class FakeBackupService:
+        async def submit_backup(
+            self,
+            request: object,
+            principal: ApiKeyPrincipal | None,
+            client_ip: str | None,
+        ) -> dict[str, object]:
+            return {
+                'status': 'accepted',
+                'backup_id': 'backup-1',
+                'classification': 'PUBLIC',
+                'source_system': 'system-a',
+            }
+
     app = create_app()
     app.dependency_overrides[get_auth_service] = lambda: FakeAuthService()
+    app.dependency_overrides[get_backup_service] = lambda: FakeBackupService()
     client = TestClient(app)
 
     response = client.post(
@@ -67,6 +82,7 @@ def test_valid_api_key_allows_request() -> None:
     assert response.json() == {
         'data': {
             'status': 'accepted',
+            'backup_id': 'backup-1',
             'classification': 'PUBLIC',
             'source_system': 'system-a',
         },

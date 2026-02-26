@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from app.core.enums import ClassificationLevel
 from app.schemas.auth import ApiKeyPrincipal
 
 
@@ -13,12 +14,31 @@ class AuthorizationDecision:
     role: str
 
 
+@dataclass(frozen=True)
+class BackupPolicyDecision:
+    allowed: bool
+    reason: str
+    reason_category: str
+    role: str
+    classification: ClassificationLevel
+
+
 class PolicyService:
-    def __init__(self, role_permissions: dict[str, set[str]] | None = None) -> None:
+    def __init__(
+        self,
+        role_permissions: dict[str, set[str]] | None = None,
+        backup_classification_roles: dict[ClassificationLevel, set[str]] | None = None,
+    ) -> None:
         self._role_permissions = role_permissions or {
             'operator': {'backups'},
             'admin': {'backups', 'restores', 'audit', 'admin'},
             'super_admin': {'backups', 'restores', 'audit', 'admin'},
+        }
+        self._backup_classification_roles = backup_classification_roles or {
+            ClassificationLevel.PUBLIC: {'operator', 'admin', 'super_admin'},
+            ClassificationLevel.INTERNAL: {'operator', 'admin', 'super_admin'},
+            ClassificationLevel.CONFIDENTIAL: {'operator', 'admin', 'super_admin'},
+            ClassificationLevel.SECRET: {'operator', 'admin', 'super_admin'},
         }
 
     def authorize(
@@ -49,4 +69,34 @@ class PolicyService:
             reason='permission_denied',
             required_permission=permission,
             role=role,
+        )
+
+    def evaluate_backup(
+        self,
+        principal: ApiKeyPrincipal | None,
+        classification: ClassificationLevel,
+    ) -> BackupPolicyDecision:
+        if principal is None:
+            return BackupPolicyDecision(
+                allowed=False,
+                reason='Missing principal',
+                reason_category='missing_principal',
+                role='unknown',
+                classification=classification,
+            )
+        allowed_roles = self._backup_classification_roles.get(classification, set())
+        if principal.role in allowed_roles:
+            return BackupPolicyDecision(
+                allowed=True,
+                reason='Backup allowed',
+                reason_category='allowed',
+                role=principal.role,
+                classification=classification,
+            )
+        return BackupPolicyDecision(
+            allowed=False,
+            reason='Role not permitted for classification',
+            reason_category='role_restricted',
+            role=principal.role,
+            classification=classification,
         )

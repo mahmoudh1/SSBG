@@ -1,6 +1,6 @@
-﻿# Story 2.5: Persist Backup Metadata, Lifecycle Status, and Audit Evidence
+# Story 2.5: Persist Backup Metadata, Lifecycle Status, and Audit Evidence
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,11 +20,11 @@ FR-07, FR-12, UJ-02/UJ-05
 
 ## Tasks / Subtasks
 
-- [ ] Finalize backup metadata persistence model/repository for identifiers, storage refs, checksums, classification, key version, timestamps (AC: 1)
-- [ ] Implement lifecycle status transitions and persistence updates (AC: 2)
-- [ ] Emit audit entries for backup checkpoints (success/failure/deny as applicable) (AC: 3)
-- [ ] Return stable backup identifier from API tied to persisted metadata (AC: 1)
-- [ ] Add tests for metadata retrieval, status transitions, and audit evidence generation (AC: 1, 2, 3)
+- [x] Finalize backup metadata persistence model/repository for identifiers, storage refs, checksums, classification, key version, timestamps (AC: 1)
+- [x] Implement lifecycle status transitions and persistence updates (AC: 2)
+- [x] Emit audit entries for backup checkpoints (success/failure/deny as applicable) (AC: 3)
+- [x] Return stable backup identifier from API tied to persisted metadata (AC: 1)
+- [x] Add tests for metadata retrieval, status transitions, and audit evidence generation (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -94,5 +94,40 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created
-- Story status set to ready-for-dev
+- Expanded backup metadata model and repository lifecycle updates with status transitions.
+- Added audit persistence hooks for backup processing checkpoints.
+- Added workflow tests for lifecycle persistence and audit evidence.
+- Code review fixes: validated lifecycle/audit paths under clean lint/type checks and completed review documentation/tracking sync.
+
+## File List
+
+- `app/services/backup_service.py`
+- `app/repositories/backups_repository.py`
+- `app/repositories/audit_repository.py`
+- `app/services/audit_service.py`
+- `app/infrastructure/db/models/backup_metadata.py`
+- `app/infrastructure/db/models/audit_log_entry.py`
+- `tests/integration/workflows/test_backup_metadata_lifecycle.py`
+- `_bmad-output/implementation-artifacts/2-5-persist-backup-metadata-lifecycle-status-and-audit-evidence.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented backup metadata lifecycle persistence and audit checkpoint recording
+- 2026-02-26: Code review fixes applied (lint/type cleanup + documentation/tracking sync)
+
+## Senior Developer Review (AI)
+
+### Review Date
+
+2026-02-26
+
+### Outcome
+
+Approve
+
+### Findings Addressed
+
+- [x] Confirmed lifecycle status transitions and audit checkpoint persistence paths
+- [x] Added missing File List and Change Log sections
+- [x] Synced story/sprint status to `done`

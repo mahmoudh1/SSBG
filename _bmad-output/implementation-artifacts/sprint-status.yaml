@@ -49,11 +49,11 @@ development_status:
   epic-1-retrospective: optional
 
   epic-2: in-progress
-  2-1-accept-backup-requests-and-validate-base-request-contract: ready-for-dev
-  2-2-require-and-persist-classification-metadata-for-accepted-backups: ready-for-dev
-  2-3-evaluate-policy-before-backup-execution: ready-for-dev
-  2-4-encrypt-backup-payloads-before-object-storage-and-track-key-version: ready-for-dev
-  2-5-persist-backup-metadata-lifecycle-status-and-audit-evidence: ready-for-dev
+  2-1-accept-backup-requests-and-validate-base-request-contract: done
+  2-2-require-and-persist-classification-metadata-for-accepted-backups: done
+  2-3-evaluate-policy-before-backup-execution: done
+  2-4-encrypt-backup-payloads-before-object-storage-and-track-key-version: done
+  2-5-persist-backup-metadata-lifecycle-status-and-audit-evidence: done
   epic-2-retrospective: optional
 
   epic-3: in-progress

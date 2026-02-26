@@ -1,6 +1,6 @@
-﻿# Story 2.4: Encrypt Backup Payloads Before Object Storage and Track Key Version
+# Story 2.4: Encrypt Backup Payloads Before Object Storage and Track Key Version
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,11 +20,11 @@ FR-05, FR-06, UJ-02
 
 ## Tasks / Subtasks
 
-- [ ] Implement backup encryption workflow in backup_service using architecture crypto adapters (AC: 1, 2, 3)
-- [ ] Persist ciphertext to MinIO/object storage only after successful encryption (AC: 1)
-- [ ] Record key-version identifier in backup metadata creation path (AC: 2)
-- [ ] Handle encryption/storage failures with fail-secure response and no false success state (AC: 3)
-- [ ] Add tests for encryption success/failure and key-version tracking (AC: 1, 2, 3)
+- [x] Implement backup encryption workflow in backup_service using architecture crypto adapters (AC: 1, 2, 3)
+- [x] Persist ciphertext to MinIO/object storage only after successful encryption (AC: 1)
+- [x] Record key-version identifier in backup metadata creation path (AC: 2)
+- [x] Handle encryption/storage failures with fail-secure response and no false success state (AC: 3)
+- [x] Add tests for encryption success/failure and key-version tracking (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -94,5 +94,42 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created
-- Story status set to ready-for-dev
+- Added encryption pipeline with key-store driven key versioning before storage.
+- Persisted ciphertext and captured key_version in backup metadata.
+- Added unit tests for encryption success and failure paths.
+- Code review fixes: replaced custom cipher with real AES-GCM adapter, made backup storage client singleton-scoped, and implemented filesystem-backed key-store reads.
+
+## File List
+
+- `app/services/backup_service.py`
+- `app/api/dependencies.py`
+- `app/infrastructure/crypto/aes_gcm.py`
+- `app/infrastructure/crypto/key_store_fs.py`
+- `app/infrastructure/storage/minio_client.py`
+- `tests/unit/services/test_backup_encryption.py`
+- `pyproject.toml`
+- `_bmad-output/implementation-artifacts/2-4-encrypt-backup-payloads-before-object-storage-and-track-key-version.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented encryption-before-storage pipeline and key-version tracking
+- 2026-02-26: Code review fixes applied (real AES-GCM adapter, key-store path usage, persistent in-process storage client, lint/type cleanup, documentation/tracking sync)
+
+## Senior Developer Review (AI)
+
+### Review Date
+
+2026-02-26
+
+### Outcome
+
+Approve
+
+### Findings Addressed
+
+- [x] Replaced non-AES placeholder crypto with actual AES-GCM implementation in `app/infrastructure/crypto/aes_gcm.py`
+- [x] Removed per-request object storage reset by caching storage client dependency
+- [x] Implemented filesystem-backed key material loading in `FileSystemKeyStore`
+- [x] Added missing File List and Change Log sections
+- [x] Synced story/sprint status to `done`

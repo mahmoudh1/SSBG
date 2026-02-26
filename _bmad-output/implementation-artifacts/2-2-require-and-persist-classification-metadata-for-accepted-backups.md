@@ -1,6 +1,6 @@
-﻿# Story 2.2: Require and Persist Classification Metadata for Accepted Backups
+# Story 2.2: Require and Persist Classification Metadata for Accepted Backups
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,10 +20,10 @@ FR-03, FR-07, UJ-02
 
 ## Tasks / Subtasks
 
-- [ ] Define classification schema/enum and validation rules for backup requests/metadata (AC: 1, 2, 3)
-- [ ] Implement classification normalization/rejection behavior from config/policy baseline rules (AC: 1)
-- [ ] Persist classification in backup metadata model/repository and ensure retrieval path includes it (AC: 2, 3)
-- [ ] Add tests for missing/normalized classifications and metadata retrieval (AC: 1, 2, 3)
+- [x] Define classification schema/enum and validation rules for backup requests/metadata (AC: 1, 2, 3)
+- [x] Implement classification normalization/rejection behavior from config/policy baseline rules (AC: 1)
+- [x] Persist classification in backup metadata model/repository and ensure retrieval path includes it (AC: 2, 3)
+- [x] Add tests for missing/normalized classifications and metadata retrieval (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -91,5 +91,39 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
-- Ultimate context engine analysis completed - comprehensive developer guide created
-- Story status set to ready-for-dev
+- Added classification enum and settings-driven normalization rules.
+- Persisted backup metadata including classification and source system.
+- Added integration tests for normalization and persistence behavior.
+- Code review fixes: validated classification persistence path under typed test suite and completed review documentation/tracking sync.
+
+## File List
+
+- `app/core/enums.py`
+- `app/schemas/backups.py`
+- `app/services/backup_service.py`
+- `app/repositories/backups_repository.py`
+- `app/infrastructure/db/models/backup_metadata.py`
+- `tests/integration/api/test_backup_classification.py`
+- `_bmad-output/implementation-artifacts/2-2-require-and-persist-classification-metadata-for-accepted-backups.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented classification normalization and metadata persistence support
+- 2026-02-26: Code review fixes applied (type-check clean test fakes + documentation/tracking sync)
+
+## Senior Developer Review (AI)
+
+### Review Date
+
+2026-02-26
+
+### Outcome
+
+Approve
+
+### Findings Addressed
+
+- [x] Verified classification persistence and retrieval path remains available for downstream policy decisions
+- [x] Added missing File List and Change Log sections
+- [x] Synced story/sprint status to `done`
