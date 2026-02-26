@@ -23,6 +23,15 @@ class BackupPolicyDecision:
     classification: ClassificationLevel
 
 
+@dataclass(frozen=True)
+class RestorePolicyDecision:
+    allowed: bool
+    reason: str
+    reason_category: str
+    role: str
+    classification: ClassificationLevel
+
+
 class PolicyService:
     def __init__(
         self,
@@ -96,6 +105,36 @@ class PolicyService:
         return BackupPolicyDecision(
             allowed=False,
             reason='Role not permitted for classification',
+            reason_category='role_restricted',
+            role=principal.role,
+            classification=classification,
+        )
+
+    def evaluate_restore(
+        self,
+        principal: ApiKeyPrincipal | None,
+        classification: ClassificationLevel,
+    ) -> RestorePolicyDecision:
+        if principal is None:
+            return RestorePolicyDecision(
+                allowed=False,
+                reason='Missing principal',
+                reason_category='missing_principal',
+                role='unknown',
+                classification=classification,
+            )
+        # Restore remains more restrictive than backup; RBAC already gates `restores`.
+        if principal.role in {'admin', 'super_admin'}:
+            return RestorePolicyDecision(
+                allowed=True,
+                reason='Restore allowed',
+                reason_category='allowed',
+                role=principal.role,
+                classification=classification,
+            )
+        return RestorePolicyDecision(
+            allowed=False,
+            reason='Role not permitted for restore',
             reason_category='role_restricted',
             role=principal.role,
             classification=classification,

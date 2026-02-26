@@ -1,6 +1,6 @@
-﻿# Story 3.5: Issue Time-Limited Restore Access Tokens
+# Story 3.5: Issue Time-Limited Restore Access Tokens
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,11 +20,11 @@ FR-11, UJ-03
 
 ## Tasks / Subtasks
 
-- [ ] Implement restore access token issuance with explicit TTL and expiration metadata (AC: 1, 3)
-- [ ] Expose token expiration metadata in restore success response contract (AC: 1)
-- [ ] Validate token expiry on use and deny expired access (AC: 2)
-- [ ] Read TTL from configuration and apply to newly issued tokens (AC: 3)
-- [ ] Add tests for token issuance, expiry denial, and TTL config changes (AC: 1, 2, 3)
+- [x] Implement restore access token issuance with explicit TTL and expiration metadata (AC: 1, 3)
+- [x] Expose token expiration metadata in restore success response contract (AC: 1)
+- [x] Validate token expiry on use and deny expired access (AC: 2)
+- [x] Read TTL from configuration and apply to newly issued tokens (AC: 3)
+- [x] Add tests for token issuance, expiry denial, and TTL config changes (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -92,5 +92,41 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
+- Post-review fixes: enforced MFA before metadata existence checks, bound restore token use to issuing principal, added token-store expiry cleanup, and fail-secure handling for invalid metadata classification.
 - Ultimate context engine analysis completed - comprehensive developer guide created
 - Story status set to ready-for-dev
+- Added dedicated restore access token service to issue and validate time-limited restore tokens
+- Extended restore success contract to include `restore_token`, explicit expiration timestamp, and TTL seconds
+- Added restore token access endpoint (`GET /api/v1/restores/access/{restore_token}`) with expired/invalid deny mapping
+- Added configurable TTL setting (`RESTORE_ACCESS_TOKEN_TTL_SECONDS`) and applied it to newly issued tokens
+- Added integration tests for token issuance metadata, expired token denial, and TTL config-driven expiration behavior
+- Validation passed: `python -m pytest ...restore...`, `python -m ruff check ...`, `python -m mypy app tests/...`
+
+## File List
+
+- `app/api/dependencies.py`
+- `app/api/routes/restores.py`
+- `app/core/config.py`
+- `app/core/enums.py`
+- `app/infrastructure/crypto/key_store_fs.py`
+- `app/schemas/restores.py`
+- `app/services/audit_service.py`
+- `app/services/auth_service.py`
+- `app/services/incident_service.py`
+- `app/services/policy_service.py`
+- `app/services/restore_service.py`
+- `app/services/restore_access_token_service.py`
+- `tests/integration/api/test_restore_request_validation.py`
+- `tests/integration/api/test_restore_mfa_policy.py`
+- `tests/integration/api/test_restore_incident_restrictions.py`
+- `tests/integration/workflows/test_restore_integrity.py`
+- `tests/integration/api/test_restore_ttl_tokens.py`
+- `_bmad-output/implementation-artifacts/3-5-issue-time-limited-restore-access-tokens.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented Story 3.5 restore access token issuance, TTL validation, and token-use endpoint
+- 2026-02-26: Applied code-review remediation for MFA ordering, token principal binding, metadata-classification fail-secure handling, and token-store expiry cleanup
+
+

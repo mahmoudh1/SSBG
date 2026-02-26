@@ -15,10 +15,57 @@ class AuthFailure(Exception):
         self.message = message
 
 
+class MfaFailure(Exception):
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
 class AuthService:
     def __init__(self, repository: ApiKeysRepository, audit_service: AuditService) -> None:
         self._repository = repository
         self._audit_service = audit_service
+
+    async def validate_mfa_token(
+        self,
+        principal: ApiKeyPrincipal | None,
+        mfa_token: str | None,
+        client_ip: str | None,
+    ) -> None:
+        if principal is None:
+            await self._audit_service.record_mfa_outcome(
+                key_id=None,
+                outcome='denied',
+                reason='missing_principal',
+                client_ip=client_ip,
+            )
+            raise MfaFailure('MFA_REQUIRED', 'MFA token required')
+        if not mfa_token:
+            await self._audit_service.record_mfa_outcome(
+                key_id=principal.key_id,
+                outcome='denied',
+                reason='missing_mfa',
+                client_ip=client_ip,
+            )
+            raise MfaFailure('MFA_REQUIRED', 'MFA token required')
+
+        expected_token = f'mfa:{principal.key_id}'
+        if mfa_token != expected_token:
+            await self._audit_service.record_mfa_outcome(
+                key_id=principal.key_id,
+                outcome='denied',
+                reason='invalid_mfa',
+                client_ip=client_ip,
+            )
+            raise MfaFailure('MFA_INVALID', 'Invalid MFA token')
+
+        await self._audit_service.record_mfa_outcome(
+            key_id=principal.key_id,
+            outcome='allowed',
+            reason=None,
+            client_ip=client_ip,
+        )
 
     async def authenticate(
         self,

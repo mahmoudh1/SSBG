@@ -19,7 +19,10 @@ from app.schemas.auth import ApiKeyPrincipal
 from app.services.audit_service import AuditService
 from app.services.auth_service import AuthFailure, AuthService
 from app.services.backup_service import BackupService
+from app.services.incident_service import IncidentService
 from app.services.policy_service import PolicyService
+from app.services.restore_access_token_service import RestoreAccessTokenService
+from app.services.restore_service import RestoreService
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +85,17 @@ def get_policy_service() -> PolicyService:
     return PolicyService()
 
 
+@lru_cache(maxsize=1)
+def get_restore_access_token_service() -> RestoreAccessTokenService:
+    return RestoreAccessTokenService()
+
+
+def get_incident_service(
+    settings: Settings = Depends(get_app_settings),
+) -> IncidentService:
+    return IncidentService(settings)
+
+
 def get_backup_service(
     repository: BackupsRepository = Depends(get_backups_repository),
     settings: Settings = Depends(get_app_settings),
@@ -91,6 +105,32 @@ def get_backup_service(
     storage: InMemoryObjectStorage = Depends(get_storage_client),
 ) -> BackupService:
     return BackupService(repository, settings, policy_service, audit_service, key_store, storage)
+
+
+def get_restore_service(
+    backups_repository: BackupsRepository = Depends(get_backups_repository),
+    auth_service: AuthService = Depends(get_auth_service),
+    policy_service: PolicyService = Depends(get_policy_service),
+    audit_service: AuditService = Depends(get_audit_service),
+    incident_service: IncidentService = Depends(get_incident_service),
+    settings: Settings = Depends(get_app_settings),
+    key_store: FileSystemKeyStore = Depends(get_key_store),
+    storage: InMemoryObjectStorage = Depends(get_storage_client),
+    restore_access_token_service: RestoreAccessTokenService = Depends(
+        get_restore_access_token_service,
+    ),
+) -> RestoreService:
+    return RestoreService(
+        backups_repository,
+        auth_service,
+        policy_service,
+        audit_service,
+        incident_service,
+        settings,
+        key_store,
+        storage,
+        restore_access_token_service,
+    )
 
 
 async def require_api_key(

@@ -1,6 +1,6 @@
-﻿# Story 3.2: Require MFA and Policy Authorization Before Restore Execution
+# Story 3.2: Require MFA and Policy Authorization Before Restore Execution
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,11 +20,11 @@ FR-04, FR-08, UJ-03
 
 ## Tasks / Subtasks
 
-- [ ] Implement restore-side MFA validation gate and request dependency path (AC: 1, 2, 3)
-- [ ] Compose restore authz/policy evaluation with existing auth/RBAC and policy service patterns (AC: 1, 3)
-- [ ] Audit MFA outcomes and restore policy outcomes (AC: 2, 3)
-- [ ] Return documented deny errors for missing/invalid MFA and policy deny cases (AC: 1, 2)
-- [ ] Add tests for missing MFA, invalid MFA, and allow path continuation (AC: 1, 2, 3)
+- [x] Implement restore-side MFA validation gate and request dependency path (AC: 1, 2, 3)
+- [x] Compose restore authz/policy evaluation with existing auth/RBAC and policy service patterns (AC: 1, 3)
+- [x] Audit MFA outcomes and restore policy outcomes (AC: 2, 3)
+- [x] Return documented deny errors for missing/invalid MFA and policy deny cases (AC: 1, 2)
+- [x] Add tests for missing MFA, invalid MFA, and allow path continuation (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -93,5 +93,40 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
+- Post-review fixes: enforced MFA before metadata existence checks, bound restore token use to issuing principal, added token-store expiry cleanup, and fail-secure handling for invalid metadata classification.
 - Ultimate context engine analysis completed - comprehensive developer guide created
 - Story status set to ready-for-dev
+- Added MFA token validation path for restores with auditable allow/deny outcomes
+- Added restore policy evaluation + audit recording before restore execution continuation
+- Updated restore route error mapping for missing/invalid MFA and restore policy deny responses
+- Added integration tests for missing MFA, invalid MFA, allow path continuation, and restore policy deny
+- Validation passed: `python -m pytest tests/integration/api/test_restore_request_validation.py tests/integration/api/test_restore_mfa_policy.py`, `python -m ruff check ...`, `python -m mypy app tests/...`
+
+## File List
+
+- `app/api/dependencies.py`
+- `app/api/routes/restores.py`
+- `app/core/config.py`
+- `app/core/enums.py`
+- `app/infrastructure/crypto/key_store_fs.py`
+- `app/schemas/restores.py`
+- `app/services/audit_service.py`
+- `app/services/auth_service.py`
+- `app/services/incident_service.py`
+- `app/services/policy_service.py`
+- `app/services/restore_service.py`
+- `app/services/restore_access_token_service.py`
+- `tests/integration/api/test_restore_request_validation.py`
+- `tests/integration/api/test_restore_mfa_policy.py`
+- `tests/integration/api/test_restore_incident_restrictions.py`
+- `tests/integration/workflows/test_restore_integrity.py`
+- `tests/integration/api/test_restore_ttl_tokens.py`
+- `_bmad-output/implementation-artifacts/3-2-require-mfa-and-policy-authorization-before-restore-execution.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented Story 3.2 restore MFA + policy authorization gating and audit outcomes
+- 2026-02-26: Applied code-review remediation for MFA ordering, token principal binding, metadata-classification fail-secure handling, and token-store expiry cleanup
+
+

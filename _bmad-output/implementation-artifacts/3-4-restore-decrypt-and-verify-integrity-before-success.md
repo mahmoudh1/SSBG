@@ -1,6 +1,6 @@
-﻿# Story 3.4: Restore, Decrypt, and Verify Integrity Before Success
+# Story 3.4: Restore, Decrypt, and Verify Integrity Before Success
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,11 +20,11 @@ FR-10, UJ-03
 
 ## Tasks / Subtasks
 
-- [ ] Implement restore data retrieval + decrypt pipeline in restore_service using storage/crypto adapters (AC: 1, 2, 3)
-- [ ] Validate integrity before success response/token issuance (AC: 1, 2)
-- [ ] Return documented integrity error and block success on validation failure (AC: 2)
-- [ ] Audit successful restore completion and integrity-failure outcomes (AC: 3)
-- [ ] Add tests for successful decrypt/integrity pass and tamper/integrity-failure paths (AC: 1, 2, 3)
+- [x] Implement restore data retrieval + decrypt pipeline in restore_service using storage/crypto adapters (AC: 1, 2, 3)
+- [x] Validate integrity before success response/token issuance (AC: 1, 2)
+- [x] Return documented integrity error and block success on validation failure (AC: 2)
+- [x] Audit successful restore completion and integrity-failure outcomes (AC: 3)
+- [x] Add tests for successful decrypt/integrity pass and tamper/integrity-failure paths (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -94,5 +94,40 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
+- Post-review fixes: enforced MFA before metadata existence checks, bound restore token use to issuing principal, added token-store expiry cleanup, and fail-secure handling for invalid metadata classification.
 - Ultimate context engine analysis completed - comprehensive developer guide created
 - Story status set to ready-for-dev
+- Implemented restore retrieval/decrypt pipeline using object storage and key-store adapters with AES-GCM decryption
+- Added ciphertext/plaintext integrity verification and fail-secure handling for storage/key/crypto failures
+- Added documented route error mapping for integrity and restore dependency failures (`RESTORE_INTEGRITY_FAILED`, `RESTORE_UNAVAILABLE`)
+- Added restore completion/failure audit events and workflow tests for success, tamper detection, and storage failure
+- Validation passed: `python -m pytest ...restore...`, `python -m ruff check ...`, `python -m mypy app tests/...`
+
+## File List
+
+- `app/api/dependencies.py`
+- `app/api/routes/restores.py`
+- `app/core/config.py`
+- `app/core/enums.py`
+- `app/infrastructure/crypto/key_store_fs.py`
+- `app/schemas/restores.py`
+- `app/services/audit_service.py`
+- `app/services/auth_service.py`
+- `app/services/incident_service.py`
+- `app/services/policy_service.py`
+- `app/services/restore_service.py`
+- `app/services/restore_access_token_service.py`
+- `tests/integration/api/test_restore_request_validation.py`
+- `tests/integration/api/test_restore_mfa_policy.py`
+- `tests/integration/api/test_restore_incident_restrictions.py`
+- `tests/integration/workflows/test_restore_integrity.py`
+- `tests/integration/api/test_restore_ttl_tokens.py`
+- `_bmad-output/implementation-artifacts/3-4-restore-decrypt-and-verify-integrity-before-success.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented Story 3.4 restore decrypt + integrity verification with fail-secure error handling and audit events
+- 2026-02-26: Applied code-review remediation for MFA ordering, token principal binding, metadata-classification fail-secure handling, and token-store expiry cleanup
+
+

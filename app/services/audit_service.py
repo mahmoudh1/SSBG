@@ -63,6 +63,32 @@ class AuditService:
             reason=None,
         )
 
+    async def record_mfa_outcome(
+        self,
+        key_id: str | None,
+        outcome: str,
+        reason: str | None,
+        client_ip: str | None,
+    ) -> None:
+        logger.info(
+            'MFA outcome',
+            extra={
+                'key_id': key_id,
+                'outcome': outcome,
+                'reason': reason,
+                'client_ip': client_ip,
+            },
+        )
+        await self._persist_entry(
+            action='mfa_outcome',
+            resource='restore',
+            resource_id=None,
+            actor_key_id=key_id,
+            actor_role=None,
+            status=outcome,
+            reason=reason,
+        )
+
     async def record_authorization_denied(
         self,
         key_id: str | None,
@@ -174,6 +200,36 @@ class AuditService:
         await self._persist_entry(
             action=action,
             resource='backup',
+            resource_id=backup_id,
+            actor_key_id=actor_key_id,
+            actor_role=actor_role,
+            status=status,
+            reason=reason,
+        )
+
+    async def record_restore_event(
+        self,
+        action: str,
+        backup_id: str,
+        actor_key_id: str | None,
+        actor_role: str | None,
+        status: str,
+        reason: str | None,
+    ) -> None:
+        logger.info(
+            'Restore event',
+            extra={
+                'action': action,
+                'backup_id': backup_id,
+                'actor_key_id': actor_key_id,
+                'actor_role': actor_role,
+                'status': status,
+                'reason': reason,
+            },
+        )
+        await self._persist_entry(
+            action=action,
+            resource='restore',
             resource_id=backup_id,
             actor_key_id=actor_key_id,
             actor_role=actor_role,

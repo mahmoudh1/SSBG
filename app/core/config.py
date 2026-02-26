@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     mfa_header: str = Field(default='X-MFA-Token', alias='MFA_HEADER')
     classification_required: bool = Field(default=True, alias='CLASSIFICATION_REQUIRED')
     default_classification: str = Field(default='PUBLIC', alias='DEFAULT_CLASSIFICATION')
+    current_incident_level: str = Field(default='NORMAL', alias='CURRENT_INCIDENT_LEVEL')
+    restore_access_token_ttl_seconds: int = Field(
+        default=300,
+        alias='RESTORE_ACCESS_TOKEN_TTL_SECONDS',
+    )
 
 
 @lru_cache(maxsize=1)

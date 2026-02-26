@@ -1,6 +1,6 @@
-﻿# Story 3.1: Accept Restore Requests and Load Backup Metadata
+# Story 3.1: Accept Restore Requests and Load Backup Metadata
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,11 +20,11 @@ FR-07, FR-17, UJ-03
 
 ## Tasks / Subtasks
 
-- [ ] Implement restore request schema validation and route handler in app/api/routes/restores.py (AC: 1, 2, 3)
-- [ ] Load backup metadata via repository/service using stable backup identifier (AC: 2)
-- [ ] Return documented not-found or validation error contract as appropriate (AC: 1, 2)
-- [ ] Ensure no restore token is issued on validation/metadata lookup failure (AC: 3)
-- [ ] Add tests for invalid request, not-found metadata, and valid metadata load path (AC: 1, 2, 3)
+- [x] Implement restore request schema validation and route handler in app/api/routes/restores.py (AC: 1, 2, 3)
+- [x] Load backup metadata via repository/service using stable backup identifier (AC: 2)
+- [x] Return documented not-found or validation error contract as appropriate (AC: 1, 2)
+- [x] Ensure no restore token is issued on validation/metadata lookup failure (AC: 3)
+- [x] Add tests for invalid request, not-found metadata, and valid metadata load path (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -91,5 +91,39 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
+- Post-review fixes: enforced MFA before metadata existence checks, bound restore token use to issuing principal, added token-store expiry cleanup, and fail-secure handling for invalid metadata classification.
 - Ultimate context engine analysis completed - comprehensive developer guide created
 - Story status set to ready-for-dev
+- Implemented restore request schema, route handler, and restore metadata lookup service for restore entrypoint
+- Added documented not-found error contract and success payload for metadata-loaded restore preflight path
+- Added integration tests for request validation, metadata-not-found, and successful metadata load (no restore token issuance)
+- Validation passed: `python -m pytest tests/integration/api/test_restore_request_validation.py`, `python -m ruff check ...`, `python -m mypy app tests/integration/api/test_restore_request_validation.py`
+
+## File List
+
+- `app/api/dependencies.py`
+- `app/api/routes/restores.py`
+- `app/core/config.py`
+- `app/core/enums.py`
+- `app/infrastructure/crypto/key_store_fs.py`
+- `app/schemas/restores.py`
+- `app/services/audit_service.py`
+- `app/services/auth_service.py`
+- `app/services/incident_service.py`
+- `app/services/policy_service.py`
+- `app/services/restore_service.py`
+- `app/services/restore_access_token_service.py`
+- `tests/integration/api/test_restore_request_validation.py`
+- `tests/integration/api/test_restore_mfa_policy.py`
+- `tests/integration/api/test_restore_incident_restrictions.py`
+- `tests/integration/workflows/test_restore_integrity.py`
+- `tests/integration/api/test_restore_ttl_tokens.py`
+- `_bmad-output/implementation-artifacts/3-1-accept-restore-requests-and-load-backup-metadata.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented Story 3.1 restore request validation and backup metadata lookup preflight path
+- 2026-02-26: Applied code-review remediation for MFA ordering, token principal binding, metadata-classification fail-secure handling, and token-store expiry cleanup
+
+

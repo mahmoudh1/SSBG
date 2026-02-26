@@ -57,11 +57,11 @@ development_status:
   epic-2-retrospective: optional
 
   epic-3: in-progress
-  3-1-accept-restore-requests-and-load-backup-metadata: ready-for-dev
-  3-2-require-mfa-and-policy-authorization-before-restore-execution: ready-for-dev
-  3-3-enforce-incident-level-restore-restrictions: ready-for-dev
-  3-4-restore-decrypt-and-verify-integrity-before-success: ready-for-dev
-  3-5-issue-time-limited-restore-access-tokens: ready-for-dev
+  3-1-accept-restore-requests-and-load-backup-metadata: done
+  3-2-require-mfa-and-policy-authorization-before-restore-execution: done
+  3-3-enforce-incident-level-restore-restrictions: done
+  3-4-restore-decrypt-and-verify-integrity-before-success: done
+  3-5-issue-time-limited-restore-access-tokens: done
   epic-3-retrospective: optional
 
   epic-4: backlog
@@ -82,3 +82,4 @@ development_status:
   6-2-execute-crypto-shredding-with-role-mfa-and-explicit-confirmation: backlog
   6-3-provide-admin-apis-for-key-lifecycle-and-crypto-shred-review: backlog
   epic-6-retrospective: optional
+

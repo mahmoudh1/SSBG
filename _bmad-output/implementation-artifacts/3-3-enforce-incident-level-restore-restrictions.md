@@ -1,6 +1,6 @@
-﻿# Story 3.3: Enforce Incident-Level Restore Restrictions
+# Story 3.3: Enforce Incident-Level Restore Restrictions
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,11 +20,11 @@ FR-09, FR-14, UJ-03/UJ-04
 
 ## Tasks / Subtasks
 
-- [ ] Integrate incident-state checks into restore orchestration before completion (AC: 1, 2, 3)
-- [ ] Implement documented quarantine/manual-review behavior result path (AC: 1)
-- [ ] Block restore completion at highest incident level with explicit reason mapping (AC: 2, 3)
-- [ ] Audit incident restriction outcomes with reason details (AC: 3)
-- [ ] Add tests for quarantine-level pending behavior and highest-level block (AC: 1, 2, 3)
+- [x] Integrate incident-state checks into restore orchestration before completion (AC: 1, 2, 3)
+- [x] Implement documented quarantine/manual-review behavior result path (AC: 1)
+- [x] Block restore completion at highest incident level with explicit reason mapping (AC: 2, 3)
+- [x] Audit incident restriction outcomes with reason details (AC: 3)
+- [x] Add tests for quarantine-level pending behavior and highest-level block (AC: 1, 2, 3)
 
 ## Dev Notes
 
@@ -92,5 +92,40 @@ GPT-5 (Codex)
 
 ### Completion Notes List
 
+- Post-review fixes: enforced MFA before metadata existence checks, bound restore token use to issuing principal, added token-store expiry cleanup, and fail-secure handling for invalid metadata classification.
 - Ultimate context engine analysis completed - comprehensive developer guide created
 - Story status set to ready-for-dev
+- Added incident-level source-of-truth service and restore incident enforcement in restore orchestration
+- Implemented quarantine pending/manual-review path and lockdown block path with explicit restriction reasons
+- Added auditable restore incident restriction outcomes and documented route error mapping (`RESTORE_RESTRICTED`)
+- Added integration tests for quarantine pending behavior and lockdown block behavior (including audit evidence)
+- Validation passed: `python -m pytest ...restore...`, `python -m ruff check ...`, `python -m mypy app tests/...`
+
+## File List
+
+- `app/api/dependencies.py`
+- `app/api/routes/restores.py`
+- `app/core/config.py`
+- `app/core/enums.py`
+- `app/infrastructure/crypto/key_store_fs.py`
+- `app/schemas/restores.py`
+- `app/services/audit_service.py`
+- `app/services/auth_service.py`
+- `app/services/incident_service.py`
+- `app/services/policy_service.py`
+- `app/services/restore_service.py`
+- `app/services/restore_access_token_service.py`
+- `tests/integration/api/test_restore_request_validation.py`
+- `tests/integration/api/test_restore_mfa_policy.py`
+- `tests/integration/api/test_restore_incident_restrictions.py`
+- `tests/integration/workflows/test_restore_integrity.py`
+- `tests/integration/api/test_restore_ttl_tokens.py`
+- `_bmad-output/implementation-artifacts/3-3-enforce-incident-level-restore-restrictions.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+## Change Log
+
+- 2026-02-26: Implemented Story 3.3 incident-level restore restrictions with quarantine/manual-review and lockdown block paths
+- 2026-02-26: Applied code-review remediation for MFA ordering, token principal binding, metadata-classification fail-secure handling, and token-store expiry cleanup
+
+

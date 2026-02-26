@@ -8,3 +8,9 @@ __pycache__/
 htmlcov/
 # Intentionally not ignoring .env files for this temporary shared testing workflow.
 alembic/versions/*.pyc
+
+# Ignore BMAD framework internals but keep generated output artifacts.
+.agents/
+_bmad/
+.claude/
+.trae/

@@ -18,3 +18,9 @@ class BackupStatus(StrEnum):
     PROCESSING = 'PROCESSING'
     ACTIVE = 'ACTIVE'
     FAILED = 'FAILED'
+
+
+class IncidentLevel(StrEnum):
+    NORMAL = 'NORMAL'
+    QUARANTINE = 'QUARANTINE'
+    LOCKDOWN = 'LOCKDOWN'
