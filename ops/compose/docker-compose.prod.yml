@@ -1,0 +1,6 @@
+# Production compose overlay (placeholder for story 1.1 scaffold)
+services:
+  gateway:
+    extends:
+      file: ../../docker-compose.yml
+      service: gateway

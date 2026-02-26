@@ -1,0 +1,84 @@
+# generated: 2026-02-26
+# project: SSBG
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog -> in-progress: Automatically when first story is created (via create-story)
+#   - in-progress -> done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-02-26
+project: SSBG
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-set-up-initial-project-from-selected-backend-starter-foundation: done
+  1-2-expose-health-and-readiness-signals-for-gateway-and-dependencies: done
+  1-3-authenticate-protected-api-requests-using-provisioned-api-keys: done
+  1-4-enforce-role-based-authorization-for-protected-operations: done
+  1-5-provide-initial-admin-security-management-apis-api-keys-and-basic-policy-records: done
+  epic-1-retrospective: optional
+
+  epic-2: in-progress
+  2-1-accept-backup-requests-and-validate-base-request-contract: ready-for-dev
+  2-2-require-and-persist-classification-metadata-for-accepted-backups: ready-for-dev
+  2-3-evaluate-policy-before-backup-execution: ready-for-dev
+  2-4-encrypt-backup-payloads-before-object-storage-and-track-key-version: ready-for-dev
+  2-5-persist-backup-metadata-lifecycle-status-and-audit-evidence: ready-for-dev
+  epic-2-retrospective: optional
+
+  epic-3: in-progress
+  3-1-accept-restore-requests-and-load-backup-metadata: ready-for-dev
+  3-2-require-mfa-and-policy-authorization-before-restore-execution: ready-for-dev
+  3-3-enforce-incident-level-restore-restrictions: ready-for-dev
+  3-4-restore-decrypt-and-verify-integrity-before-success: ready-for-dev
+  3-5-issue-time-limited-restore-access-tokens: ready-for-dev
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-record-tamper-evident-audit-entries-for-security-relevant-actions: backlog
+  4-2-provide-audit-chain-validation-api-or-command: backlog
+  4-3-expose-authorized-audit-review-endpoints-for-security-admins: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-evaluate-monitoring-rules-and-create-alerts: backlog
+  5-2-manage-incident-response-state-transitions: backlog
+  5-3-apply-incident-level-restrictions-across-restore-workflows: backlog
+  5-4-provide-admin-alert-review-apis: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-rotate-active-key-version-without-re-encrypting-existing-backups: backlog
+  6-2-execute-crypto-shredding-with-role-mfa-and-explicit-confirmation: backlog
+  6-3-provide-admin-apis-for-key-lifecycle-and-crypto-shred-review: backlog
+  epic-6-retrospective: optional
