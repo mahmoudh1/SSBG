@@ -109,19 +109,29 @@ def get_restore_access_token_service() -> RestoreAccessTokenService:
     return RestoreAccessTokenService()
 
 
-def get_key_management_service(
-    repository: KeyVersionsRepository = Depends(get_key_versions_repository),
-    key_store: FileSystemKeyStore = Depends(get_key_store),
-    audit_service: AuditService = Depends(get_audit_service),
-) -> KeyManagementService:
-    return KeyManagementService(repository, key_store, audit_service)
-
-
 def get_incident_service(
     settings: Settings = Depends(get_app_settings),
     repository: IncidentRepository = Depends(get_incident_repository),
 ) -> IncidentService:
     return IncidentService(settings, repository)
+
+
+def get_key_management_service(
+    repository: KeyVersionsRepository = Depends(get_key_versions_repository),
+    key_store: FileSystemKeyStore = Depends(get_key_store),
+    audit_service: AuditService = Depends(get_audit_service),
+    backups_repository: BackupsRepository = Depends(get_backups_repository),
+    incident_service: IncidentService = Depends(get_incident_service),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> KeyManagementService:
+    return KeyManagementService(
+        repository=repository,
+        key_store=key_store,
+        audit_service=audit_service,
+        backups_repository=backups_repository,
+        incident_service=incident_service,
+        auth_service=auth_service,
+    )
 
 
 def get_monitoring_service(

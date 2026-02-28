@@ -24,5 +24,7 @@ class BackupMetadataModel(Base):
     nonce: Mapped[str | None] = mapped_column(String(64), nullable=True)
     original_size: Mapped[int | None] = mapped_column(nullable=True)
     encrypted_size: Mapped[int | None] = mapped_column(nullable=True)
+    irreversible_reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    shredded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_by: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

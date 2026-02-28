@@ -23,6 +23,7 @@ from app.services.restore_service import (
     RestoreExecutionUnavailable,
     RestoreIncidentRestricted,
     RestoreIntegrityFailed,
+    RestoreIrreversible,
     RestoreMetadataNotFound,
     RestorePolicyDenied,
     RestoreService,
@@ -96,6 +97,16 @@ async def submit_restore(
             status_code=403,
             detail=_error_payload(
                 code='RESTORE_RESTRICTED',
+                message=exc.message,
+                request_id=request_id,
+                details=[{'reason_category': exc.reason_category}],
+            ),
+        ) from exc
+    except RestoreIrreversible as exc:
+        raise HTTPException(
+            status_code=410,
+            detail=_error_payload(
+                code='RESTORE_IRREVERSIBLE',
                 message=exc.message,
                 request_id=request_id,
                 details=[{'reason_category': exc.reason_category}],

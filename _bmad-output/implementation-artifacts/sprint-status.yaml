@@ -79,8 +79,8 @@ development_status:
 
   epic-6: in-progress
   6-1-rotate-active-key-version-without-re-encrypting-existing-backups: review
-  6-2-execute-crypto-shredding-with-role-mfa-and-explicit-confirmation: ready-for-dev
-  6-3-provide-admin-apis-for-key-lifecycle-and-crypto-shred-review: ready-for-dev
+  6-2-execute-crypto-shredding-with-role-mfa-and-explicit-confirmation: review
+  6-3-provide-admin-apis-for-key-lifecycle-and-crypto-shred-review: review
   epic-6-retrospective: optional
 
 

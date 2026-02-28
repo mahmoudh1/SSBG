@@ -101,6 +101,7 @@ class BackupService:
         audit_service: BackupAuditServiceLike,
         key_store: KeyStore,
         storage: ObjectStorage,
+        key_management_service: object | None = None,
     ) -> None:
         self._repository = repository
         self._settings = settings
@@ -108,6 +109,7 @@ class BackupService:
         self._audit_service = audit_service
         self._key_store = key_store
         self._storage = storage
+        self._key_management_service = key_management_service
 
     async def _mark_failed(
         self,
@@ -208,7 +210,13 @@ class BackupService:
             reason=None,
         )
         try:
-            key_material = self._key_store.get_active_key()
+            if self._key_management_service is not None and hasattr(
+                self._key_management_service,
+                'get_active_key_material',
+            ):
+                key_material = await self._key_management_service.get_active_key_material()
+            else:
+                key_material = self._key_store.get_active_key()
         except Exception as exc:
             await self._mark_failed(backup_id, principal, 'key_unavailable')
             raise BackupProcessingError('UPLOAD_FAILED', 'Backup encryption failed') from exc

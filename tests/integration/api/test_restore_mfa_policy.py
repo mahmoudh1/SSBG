@@ -164,12 +164,13 @@ def _build_restore_service(
     policy_service: object,
     audit: FakeAuditService,
     incident_service: object | None = None,
+    backup_status: str = 'ACTIVE',
 ) -> RestoreService:
     metadata = SimpleNamespace(
         backup_id='backup-0001',
         classification='CONFIDENTIAL',
         source_system='system-a',
-        status='ACTIVE',
+        status=backup_status,
         key_version='P-001',
         created_at=datetime(2026, 2, 26, tzinfo=timezone.utc),
     )
@@ -338,3 +339,26 @@ def test_restore_lockdown_incident_blocks_with_reason_and_audit() -> None:
     assert payload['error']['code'] == 'RESTORE_RESTRICTED'
     assert payload['data']['details'][0]['reason_category'] == 'incident_lockdown'
     assert audit.restore_events and audit.restore_events[-1]['reason'] == 'incident_lockdown'
+
+
+def test_restore_irreversible_backup_returns_documented_error() -> None:
+    app = create_app()
+    _override_restore_auth(app)
+    audit = FakeAuditService()
+    app.dependency_overrides[get_restore_service] = lambda: _build_restore_service(
+        FakePolicyServiceAllow(),
+        audit,
+        backup_status='IRREVERSIBLE',
+    )
+    client = TestClient(app)
+
+    response = client.post(
+        '/api/v1/restores',
+        json={'backup_id': 'backup-0001'},
+        headers={'X-API-Key': 'valid', 'X-MFA-Token': 'mfa:admin-key'},
+    )
+
+    assert response.status_code == 410
+    payload = response.json()
+    assert payload['error']['code'] == 'RESTORE_IRREVERSIBLE'
+    assert payload['data']['details'][0]['reason_category'] == 'irreversible'

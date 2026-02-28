@@ -47,6 +47,13 @@ class RestoreExecutionUnavailable(Exception):
         self.message = message
 
 
+class RestoreIrreversible(Exception):
+    def __init__(self, message: str, reason_category: str) -> None:
+        super().__init__(message)
+        self.message = message
+        self.reason_category = reason_category
+
+
 class BackupsRepositoryLike(Protocol):
     async def get_by_backup_id(self, backup_id: str) -> Any | None:
         ...
@@ -211,6 +218,26 @@ class RestoreService:
         metadata = await self._backups_repository.get_by_backup_id(request.backup_id)
         if metadata is None:
             raise RestoreMetadataNotFound(request.backup_id)
+        if getattr(metadata, 'status', None) == 'IRREVERSIBLE':
+            await self._audit_service.record_restore_event(
+                action='restore_restricted_blocked',
+                backup_id=metadata.backup_id,
+                actor_key_id=principal.key_id if principal else None,
+                actor_role=principal.role if principal else None,
+                status='BLOCKED',
+                reason='irreversible',
+            )
+            if self._monitoring_service is not None:
+                await self._monitoring_service.process_security_event(
+                    source_event='restore_restricted_blocked',
+                    actor=principal,
+                    backup_id=metadata.backup_id,
+                    metadata={'restriction_reason': 'irreversible'},
+                )
+            raise RestoreIrreversible(
+                'Restore blocked: backup is irreversible after crypto-shredding',
+                'irreversible',
+            )
 
         try:
             classification = ClassificationLevel(metadata.classification)

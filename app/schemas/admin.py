@@ -99,3 +99,27 @@ class KeyVersionResponse(BaseModel):
     created_at: datetime | None = None
     activated_at: datetime | None = None
     destroyed_at: datetime | None = None
+
+
+class CryptoShredRequest(BaseModel):
+    confirmation: str
+
+
+class CryptoShredResponse(BaseModel):
+    version_id: str
+    destroyed: bool
+    affected_backups: int
+    incident_effect: str
+
+
+class CryptoShredOutcomeResponse(BaseModel):
+    version_id: str
+    key_destroyed: bool
+    destroyed_at: datetime | None = None
+    total_backups: int
+    irreversible_backups: int
+    active_backups: int
+    processing_backups: int
+    failed_backups: int
+    last_shredded_at: datetime | None = None
+    irreversible_reason: str | None = None

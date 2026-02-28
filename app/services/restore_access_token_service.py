@@ -28,7 +28,10 @@ class RestoreAccessTokenExpired(Exception):
 
 
 class RestoreAccessTokenForbidden(Exception):
-    def __init__(self, message: str = 'Restore access token is not valid for this principal') -> None:
+    def __init__(
+        self,
+        message: str = 'Restore access token is not valid for this principal',
+    ) -> None:
         super().__init__(message)
         self.message = message
 
