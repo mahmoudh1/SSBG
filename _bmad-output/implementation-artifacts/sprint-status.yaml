@@ -71,16 +71,17 @@ development_status:
   epic-4-retrospective: optional
 
   epic-5: in-progress
-  5-1-evaluate-monitoring-rules-and-create-alerts: ready-for-dev
-  5-2-manage-incident-response-state-transitions: ready-for-dev
-  5-3-apply-incident-level-restrictions-across-restore-workflows: ready-for-dev
-  5-4-provide-admin-alert-review-apis: ready-for-dev
+  5-1-evaluate-monitoring-rules-and-create-alerts: done
+  5-2-manage-incident-response-state-transitions: done
+  5-3-apply-incident-level-restrictions-across-restore-workflows: done
+  5-4-provide-admin-alert-review-apis: done
   epic-5-retrospective: optional
 
   epic-6: in-progress
-  6-1-rotate-active-key-version-without-re-encrypting-existing-backups: ready-for-dev
+  6-1-rotate-active-key-version-without-re-encrypting-existing-backups: review
   6-2-execute-crypto-shredding-with-role-mfa-and-explicit-confirmation: ready-for-dev
   6-3-provide-admin-apis-for-key-lifecycle-and-crypto-shred-review: ready-for-dev
   epic-6-retrospective: optional
+
 
 

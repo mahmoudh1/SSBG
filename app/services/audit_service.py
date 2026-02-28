@@ -343,6 +343,33 @@ class AuditService:
             fail_secure=True,
         )
 
+    async def record_key_rotation(
+        self,
+        actor_key_id: str | None,
+        from_version: str | None,
+        to_version: str,
+        client_ip: str | None,
+    ) -> None:
+        logger.info(
+            'Key rotation',
+            extra={
+                'actor_key_id': actor_key_id,
+                'from_version': from_version,
+                'to_version': to_version,
+                'client_ip': client_ip,
+            },
+        )
+        await self._persist_entry(
+            action='key_rotation',
+            resource='key_version',
+            resource_id=to_version,
+            actor_key_id=actor_key_id,
+            actor_role=None,
+            status='completed',
+            reason=f'from:{from_version or "none"}',
+            fail_secure=True,
+        )
+
     async def validate_chain(self) -> AuditChainValidationResult:
         if self._repository is None:
             return AuditChainValidationResult(valid=True, checked_entries=0, failure=None)
@@ -443,3 +470,18 @@ class AuditService:
             )
             for record in records
         ]
+
+    async def count_security_events(
+        self,
+        action: str,
+        actor_key_id: str | None,
+        since: datetime,
+    ) -> int:
+        if self._repository is None:
+            return 0
+        return await self._repository.count_entries(
+            action=action,
+            resource='restore',
+            actor_key_id=actor_key_id,
+            since=since,
+        )

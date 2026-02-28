@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from hashlib import sha512
+from inspect import isawaitable
 from typing import Any, Protocol
 
 from app.core.enums import ClassificationLevel, IncidentLevel
@@ -76,6 +77,17 @@ class RestoreAccessTokenServiceLike(Protocol):
         ...
 
 
+class MonitoringServiceLike(Protocol):
+    async def process_security_event(
+        self,
+        source_event: str,
+        actor: ApiKeyPrincipal | None,
+        backup_id: str | None,
+        metadata: dict[str, object] | None = None,
+    ) -> Any:
+        ...
+
+
 class RestoreService:
     def __init__(
         self,
@@ -88,6 +100,7 @@ class RestoreService:
         key_store: KeyStoreLike | None = None,
         storage: ObjectStorageLike | None = None,
         restore_access_token_service: RestoreAccessTokenServiceLike | None = None,
+        monitoring_service: MonitoringServiceLike | None = None,
     ) -> None:
         self._backups_repository = backups_repository
         self._auth_service = auth_service
@@ -98,6 +111,7 @@ class RestoreService:
         self._key_store = key_store
         self._storage = storage
         self._restore_access_token_service = restore_access_token_service
+        self._monitoring_service = monitoring_service
 
     async def _record_restore_failure(
         self,
@@ -113,6 +127,20 @@ class RestoreService:
             status='FAILED',
             reason=reason,
         )
+        if self._monitoring_service is not None:
+            await self._monitoring_service.process_security_event(
+                source_event='restore_failed',
+                actor=principal,
+                backup_id=metadata.backup_id,
+                metadata={'reason': reason},
+            )
+
+    async def _resolve_incident_level(self) -> IncidentLevel:
+        current = self._incident_service.get_current_level()
+        if isawaitable(current):
+            resolved = await current
+            return IncidentLevel(resolved)
+        return IncidentLevel(current)
 
     def _require_restore_field(self, metadata: Any, field_name: str) -> str:
         value = getattr(metadata, field_name, None)
@@ -215,7 +243,28 @@ class RestoreService:
             created_at=getattr(metadata, 'created_at', None),
         )
 
-        incident_level = self._incident_service.get_current_level()
+        try:
+            incident_level = await self._resolve_incident_level()
+        except Exception as exc:
+            await self._audit_service.record_restore_event(
+                action='restore_restricted_blocked',
+                backup_id=metadata.backup_id,
+                actor_key_id=principal.key_id if principal else None,
+                actor_role=principal.role if principal else None,
+                status='BLOCKED',
+                reason='incident_state_unavailable',
+            )
+            if self._monitoring_service is not None:
+                await self._monitoring_service.process_security_event(
+                    source_event='restore_restricted_blocked',
+                    actor=principal,
+                    backup_id=metadata.backup_id,
+                    metadata={'restriction_reason': 'incident_state_unavailable'},
+                )
+            raise RestoreIncidentRestricted(
+                'Restore blocked due to incident state unavailable',
+                'incident_state_unavailable',
+            ) from exc
         if incident_level == IncidentLevel.QUARANTINE:
             await self._audit_service.record_restore_event(
                 action='restore_restricted_pending_manual_review',
@@ -225,6 +274,13 @@ class RestoreService:
                 status='PENDING_MANUAL_REVIEW',
                 reason='incident_quarantine',
             )
+            if self._monitoring_service is not None:
+                await self._monitoring_service.process_security_event(
+                    source_event='restore_restricted_pending_manual_review',
+                    actor=principal,
+                    backup_id=metadata.backup_id,
+                    metadata={'restriction_reason': 'incident_quarantine'},
+                )
             return {
                 'status': 'pending_manual_review',
                 'backup': backup.model_dump(mode='json'),
@@ -240,6 +296,13 @@ class RestoreService:
                 status='BLOCKED',
                 reason='incident_lockdown',
             )
+            if self._monitoring_service is not None:
+                await self._monitoring_service.process_security_event(
+                    source_event='restore_restricted_blocked',
+                    actor=principal,
+                    backup_id=metadata.backup_id,
+                    metadata={'restriction_reason': 'incident_lockdown'},
+                )
             raise RestoreIncidentRestricted(
                 'Restore blocked by active incident level',
                 'incident_lockdown',

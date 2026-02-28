@@ -52,3 +52,50 @@ class PolicyResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime | None = None
+
+
+class IncidentTransitionRequest(BaseModel):
+    level: str
+    reason: str | None = None
+
+
+class IncidentStateResponse(BaseModel):
+    level: str
+    changed_by_key_id: str | None = None
+    reason: str | None = None
+    changed_at: datetime | None = None
+
+
+class AlertResponse(BaseModel):
+    alert_id: str
+    rule_id: str
+    severity: str
+    status: str
+    source_event: str
+    actor_key_id: str | None = None
+    related_backup_id: str | None = None
+    reason: str
+    metadata_json: str | None = None
+    created_at: datetime
+    updated_at: datetime | None = None
+
+
+class AlertStatusUpdateRequest(BaseModel):
+    status: str
+
+
+class KeyRotationRequest(BaseModel):
+    to_version_id: str
+    reason: str | None = None
+
+
+class KeyVersionResponse(BaseModel):
+    version_id: str
+    is_active: bool
+    is_destroyed: bool
+    rotated_from_version: str | None = None
+    created_by_key_id: str | None = None
+    rotation_reason: str | None = None
+    created_at: datetime | None = None
+    activated_at: datetime | None = None
+    destroyed_at: datetime | None = None

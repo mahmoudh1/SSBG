@@ -11,15 +11,20 @@ from app.core.config import Settings, get_settings
 from app.infrastructure.crypto.key_store_fs import FileSystemKeyStore
 from app.infrastructure.db.session import get_db_session
 from app.infrastructure.storage.minio_client import InMemoryObjectStorage
+from app.repositories.alerts_repository import AlertsRepository
 from app.repositories.api_keys_repository import ApiKeysRepository
 from app.repositories.audit_repository import AuditRepository
 from app.repositories.backups_repository import BackupsRepository
+from app.repositories.incident_repository import IncidentRepository
+from app.repositories.key_versions_repository import KeyVersionsRepository
 from app.repositories.policies_repository import PoliciesRepository
 from app.schemas.auth import ApiKeyPrincipal
 from app.services.audit_service import AuditService
 from app.services.auth_service import AuthFailure, AuthService
 from app.services.backup_service import BackupService
 from app.services.incident_service import IncidentService
+from app.services.key_management_service import KeyManagementService
+from app.services.monitoring_service import MonitoringService
 from app.services.policy_service import PolicyService
 from app.services.restore_access_token_service import RestoreAccessTokenService
 from app.services.restore_service import RestoreService
@@ -55,8 +60,22 @@ def get_backups_repository(db: AsyncSession = Depends(get_db_session)) -> Backup
     return BackupsRepository(db)
 
 
+def get_key_versions_repository(
+    db: AsyncSession = Depends(get_db_session),
+) -> KeyVersionsRepository:
+    return KeyVersionsRepository(db)
+
+
 def get_audit_repository(db: AsyncSession = Depends(get_db_session)) -> AuditRepository:
     return AuditRepository(db)
+
+
+def get_alerts_repository(db: AsyncSession = Depends(get_db_session)) -> AlertsRepository:
+    return AlertsRepository(db)
+
+
+def get_incident_repository(db: AsyncSession = Depends(get_db_session)) -> IncidentRepository:
+    return IncidentRepository(db)
 
 
 def get_audit_service(
@@ -90,10 +109,26 @@ def get_restore_access_token_service() -> RestoreAccessTokenService:
     return RestoreAccessTokenService()
 
 
+def get_key_management_service(
+    repository: KeyVersionsRepository = Depends(get_key_versions_repository),
+    key_store: FileSystemKeyStore = Depends(get_key_store),
+    audit_service: AuditService = Depends(get_audit_service),
+) -> KeyManagementService:
+    return KeyManagementService(repository, key_store, audit_service)
+
+
 def get_incident_service(
     settings: Settings = Depends(get_app_settings),
+    repository: IncidentRepository = Depends(get_incident_repository),
 ) -> IncidentService:
-    return IncidentService(settings)
+    return IncidentService(settings, repository)
+
+
+def get_monitoring_service(
+    alerts_repository: AlertsRepository = Depends(get_alerts_repository),
+    audit_service: AuditService = Depends(get_audit_service),
+) -> MonitoringService:
+    return MonitoringService(alerts_repository=alerts_repository, audit_service=audit_service)
 
 
 def get_backup_service(
@@ -103,8 +138,17 @@ def get_backup_service(
     audit_service: AuditService = Depends(get_audit_service),
     key_store: FileSystemKeyStore = Depends(get_key_store),
     storage: InMemoryObjectStorage = Depends(get_storage_client),
+    key_management_service: KeyManagementService = Depends(get_key_management_service),
 ) -> BackupService:
-    return BackupService(repository, settings, policy_service, audit_service, key_store, storage)
+    return BackupService(
+        repository,
+        settings,
+        policy_service,
+        audit_service,
+        key_store,
+        storage,
+        key_management_service,
+    )
 
 
 def get_restore_service(
@@ -119,6 +163,7 @@ def get_restore_service(
     restore_access_token_service: RestoreAccessTokenService = Depends(
         get_restore_access_token_service,
     ),
+    monitoring_service: MonitoringService = Depends(get_monitoring_service),
 ) -> RestoreService:
     return RestoreService(
         backups_repository,
@@ -130,6 +175,7 @@ def get_restore_service(
         key_store,
         storage,
         restore_access_token_service,
+        monitoring_service,
     )
 
 

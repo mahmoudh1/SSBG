@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from sqlalchemy import select
+from datetime import datetime
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.db.models.audit_log_entry import AuditLogEntryModel
@@ -50,3 +52,22 @@ class AuditRepository:
             query.order_by(AuditLogEntryModel.chain_index.asc()).offset(offset).limit(limit),
         )
         return list(result.scalars())
+
+    async def count_entries(
+        self,
+        action: str,
+        resource: str,
+        actor_key_id: str | None,
+        since: datetime,
+    ) -> int:
+        query = select(func.count()).select_from(AuditLogEntryModel).where(
+            AuditLogEntryModel.action == action,
+            AuditLogEntryModel.resource == resource,
+            AuditLogEntryModel.created_at >= since,
+        )
+        if actor_key_id is None:
+            query = query.where(AuditLogEntryModel.actor_key_id.is_(None))
+        else:
+            query = query.where(AuditLogEntryModel.actor_key_id == actor_key_id)
+        result = await self._session.execute(query)
+        return int(result.scalar_one())
